@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Academic Advisor — Instant Academic Guidance</title>
+<meta name="description" content="A web-based academic advising system for university undergraduates — instant guidance on GPA, course load, carry-overs and failed courses." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   Academic Advising System — Design Tokens
+   Palette: Deep Academic Navy + Honors Gold
+   Type: Space Grotesk (display) + Inter (body)
+   ========================================================= */
+
+:root {
+  --navy-900: #0F1A33;
+  --navy-800: #16234A;
+  --navy-700: #1E2F61;
+  --navy-600: #2F4373;
+  --navy-100: #E7EBF5;
+  --gold-500: #E8A23D;
+  --gold-400: #F0B863;
+  --gold-100: #FBEDD6;
+  --green-600: #3F8F5F;
+  --green-100: #E3F3E8;
+  --red-600: #C0473A;
+  --red-100: #FBE8E5;
+  --ink-900: #14182B;
+  --ink-600: #4A5070;
+  --ink-300: #9AA1C2;
+  --bg: #F7F8FB;
+  --white: #FFFFFF;
+
+  --font-display: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+  --font-body: "Inter", "Segoe UI", Arial, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 26, 51, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 26, 51, 0.10);
+  --shadow-lg: 0 20px 48px rgba(15, 26, 51, 0.16);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink-900);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--navy-900);
+  margin: 0 0 0.5em 0;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+p { margin: 0 0 1em 0; color: var(--ink-600); }
+
+a { color: var(--navy-700); text-decoration: none; }
+
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 13px 26px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  text-decoration: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--gold-500);
+  color: var(--navy-900);
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover { background: var(--gold-400); box-shadow: var(--shadow-md); }
+.btn-outline {
+  background: transparent;
+  border-color: rgba(255,255,255,0.35);
+  color: var(--white);
+}
+.btn-outline:hover { background: rgba(255,255,255,0.1); }
+.btn-ghost {
+  background: var(--navy-100);
+  color: var(--navy-800);
+}
+.btn-ghost:hover { background: #DCE3F3; }
+.btn-block { width: 100%; }
+.btn:focus-visible {
+  outline: 3px solid var(--gold-500);
+  outline-offset: 2px;
+}
+.btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+/* ---------- Nav ---------- */
+.site-nav {
+  background: var(--navy-900);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.site-nav .container { position: relative; }
+.site-nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--navy-900);
+  font-size: 0.95rem;
+}
+.nav-links-group {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.nav-links a {
+  color: var(--navy-100);
+  font-size: 0.92rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.nav-links a:hover { opacity: 1; }
+.nav-links a.active { color: var(--gold-400); opacity: 1; }
+.nav-cta { display: flex; gap: 10px; }
+.nav-toggle { display: none; }
+
+@media (max-width: 760px) {
+  .nav-links-group { display: none; }
+  .nav-links-group.open {
+    display: flex;
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    background: var(--navy-900);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 20px 24px 28px;
+    box-shadow: var(--shadow-lg);
+  }
+  .nav-links-group.open .nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .nav-links-group.open .nav-cta {
+    flex-direction: column;
+    width: 100%;
+  }
+  .nav-toggle {
+    display: inline-flex;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.6rem;
+    cursor: pointer;
+  }
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  background: radial-gradient(circle at 12% 20%, var(--navy-700), var(--navy-900) 60%);
+  color: var(--white);
+  padding: 88px 0 110px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -120px;
+  top: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,162,61,0.18), transparent 70%);
+}
+.hero .container {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 56px;
+  align-items: center;
+  position: relative;
+}
+@media (max-width: 900px) {
+  .hero {
+    padding: 56px 0 64px;
+  }
+  .hero .container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .gauge-card {
+    max-width: 360px;
+  }
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(232,162,61,0.14);
+  color: var(--gold-400);
+  border: 1px solid rgba(232,162,61,0.35);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 22px;
+}
+.hero h1 {
+  color: var(--white);
+  font-size: clamp(2.2rem, 4vw, 3.1rem);
+  margin-bottom: 18px;
+}
+.hero h1 .accent { color: var(--gold-400); }
+.hero p.lead {
+  color: var(--navy-100);
+  font-size: 1.08rem;
+  max-width: 480px;
+  margin-bottom: 32px;
+}
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 36px; }
+.hero-stats {
+  display: flex;
+  gap: 34px;
+  flex-wrap: wrap;
+}
+.hero-stats div strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--white);
+}
+.hero-stats div span {
+  font-size: 0.8rem;
+  color: var(--navy-100);
+  opacity: 0.8;
+}
+
+/* ---------- GPA Gauge (signature element) ---------- */
+.gauge-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  backdrop-filter: blur(6px);
+}
+.gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.gauge-label {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--navy-100);
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+.gauge-value {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  color: var(--white);
+  margin-top: -86px;
+}
+.gauge-sub { font-size: 0.85rem; color: var(--gold-400); font-weight: 600; margin-bottom: 6px;}
+.gauge-rules {
+  margin-top: 18px;
+  width: 100%;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gauge-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--navy-100);
+}
+.gauge-rule .dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ---------- Sections ---------- */
+.section { padding: 90px 0; }
+.section-tight { padding: 60px 0; }
+.section-head { max-width: 640px; margin: 0 auto 52px; text-align: center; }
+.section-head .eyebrow { background: var(--gold-100); color: #9A6B1E; border-color: #F0D9AE; }
+.section-head h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
+.bg-navy { background: var(--navy-900); color: var(--white); }
+.bg-navy h2, .bg-navy h3 { color: var(--white); }
+.bg-navy p { color: var(--navy-100); }
+
+/* ---------- Feature cards ---------- */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 880px) { .grid-3 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 30px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid #ECEFF7;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.card .icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 18px;
+}
+.icon-navy { background: var(--navy-100); color: var(--navy-700); }
+.icon-gold { background: var(--gold-100); color: #9A6B1E; }
+.icon-green { background: var(--green-100); color: var(--green-600); }
+.card h3 { font-size: 1.08rem; margin-bottom: 8px; }
+.card p { font-size: 0.92rem; margin-bottom: 0; }
+.card .rule-tag {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink-300);
+}
+
+/* ---------- How it works ---------- */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 880px) { .steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 540px) { .steps { grid-template-columns: 1fr; } }
+.step {
+  position: relative;
+  padding: 26px 20px;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  border: 1px solid #ECEFF7;
+}
+.step .num {
+  font-family: var(--font-display);
+  color: var(--gold-500);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: block;
+}
+.step h4 { font-size: 0.98rem; margin-bottom: 6px; }
+.step p { font-size: 0.86rem; margin-bottom: 0; }
+
+/* ---------- Auth pages ---------- */
+.auth-shell {
+  min-height: calc(100vh - 76px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 880px) { .auth-shell { grid-template-columns: 1fr; } }
+.auth-aside {
+  background: radial-gradient(circle at 20% 20%, var(--navy-700), var(--navy-900) 65%);
+  color: var(--white);
+  padding: 64px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.auth-aside::after {
+  content: "";
+  position: absolute;
+  left: -100px; bottom: -100px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,162,61,0.16), transparent 70%);
+}
+@media (max-width: 880px) { .auth-aside { display: none; } }
+.auth-aside h2 { color: var(--white); font-size: 1.7rem; margin-bottom: 14px; }
+.auth-quote {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  font-size: 0.88rem;
+  color: var(--navy-100);
+}
+.auth-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 24px;
+}
+.auth-card { width: 100%; max-width: 400px; }
+.auth-card .eyebrow { background: var(--gold-100); color: #9A6B1E; border-color: #F0D9AE; }
+.auth-card h1 { font-size: 1.6rem; margin-bottom: 6px; }
+.auth-card .sub { margin-bottom: 28px; color: var(--ink-600); font-size: 0.92rem; }
+
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--navy-800);
+  margin-bottom: 6px;
+}
+.field input, .field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #DDE1EE;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  background: var(--white);
+  color: var(--ink-900);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--navy-600);
+  box-shadow: 0 0 0 3px rgba(47,67,115,0.12);
+}
+.field .hint { font-size: 0.78rem; color: var(--ink-300); margin-top: 5px; }
+.field-error {
+  font-size: 0.8rem;
+  color: var(--red-600);
+  margin-top: 5px;
+  display: none;
+}
+.field.invalid input, .field.invalid select { border-color: var(--red-600); }
+.field.invalid .field-error { display: block; }
+
+.form-foot {
+  margin-top: 22px;
+  font-size: 0.88rem;
+  color: var(--ink-600);
+  text-align: center;
+}
+.alert {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  margin-bottom: 18px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-error { background: var(--red-100); color: #8C3528; }
+.alert-success { background: var(--green-100); color: #2A6B43; }
+
+/* ---------- Advisor form ---------- */
+.advisor-shell { display: grid; grid-template-columns: 280px 1fr; gap: 32px; }
+@media (max-width: 880px) {
+  .advisor-shell { grid-template-columns: 1fr; }
+  .progress-rail { position: static; top: auto; }
+}
+.progress-rail {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid #ECEFF7;
+  padding: 24px;
+  align-self: start;
+  position: sticky;
+  top: 96px;
+}
+.progress-rail h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-300); margin-bottom: 16px; }
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  color: var(--ink-300);
+}
+.progress-step .bullet {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid #DDE1EE;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700;
+  flex-shrink: 0;
+}
+.progress-step.active { color: var(--navy-900); font-weight: 600; }
+.progress-step.active .bullet { border-color: var(--gold-500); background: var(--gold-500); color: var(--navy-900); }
+.progress-step.done .bullet { border-color: var(--green-600); background: var(--green-600); color: var(--white); }
+
+.form-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid #ECEFF7;
+  padding: 36px;
+}
+.form-card h2 { font-size: 1.3rem; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 540px) { .row-2 { grid-template-columns: 1fr; } }
+
+.radio-card-group { display: flex; gap: 14px; margin-top: 8px; }
+.radio-card {
+  flex: 1;
+  border: 1.5px solid #DDE1EE;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.radio-card:hover { border-color: var(--navy-600); }
+.radio-card input { margin: 0; accent-color: var(--navy-700); }
+.radio-card.checked { border-color: var(--navy-700); background: var(--navy-100); }
+
+.course-row {
+  display: grid;
+  grid-template-columns: 1fr 110px 36px;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+@media (max-width: 540px) { .course-row { grid-template-columns: 1fr 90px 32px; } }
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid #DDE1EE;
+  background: var(--white);
+  color: var(--red-600);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { background: var(--red-100); }
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--navy-700);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 6px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.subsection { margin-top: 28px; padding-top: 24px; border-top: 1px solid #ECEFF7; }
+.subsection h3 { font-size: 1rem; margin-bottom: 4px; }
+.subsection .sub { font-size: 0.86rem; color: var(--ink-600); margin-bottom: 14px; }
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+  gap: 12px;
+}
+
+.loader {
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(15,26,51,0.25);
+  border-top-color: var(--navy-900);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Results / Advice ---------- */
+.results-shell { max-width: 760px; margin: 0 auto; }
+.result-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+@media (max-width: 700px) { .result-summary { grid-template-columns: repeat(2, 1fr); } }
+.stat-box {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid #ECEFF7;
+  padding: 18px;
+  text-align: center;
+}
+.stat-box .v { font-family: var(--font-display); font-size: 1.5rem; color: var(--navy-900); }
+.stat-box .l { font-size: 0.75rem; color: var(--ink-300); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.advice-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid #ECEFF7;
+  box-shadow: var(--shadow-md);
+  padding: 36px;
+  margin-bottom: 18px;
+  border-left: 5px solid var(--navy-700);
+}
+.advice-card.flag-low { border-left-color: var(--red-600); }
+.advice-card.flag-warn { border-left-color: var(--gold-500); }
+.advice-card.flag-good { border-left-color: var(--green-600); }
+.advice-card .tag {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+.flag-low .tag { color: var(--red-600); }
+.flag-warn .tag { color: #9A6B1E; }
+.flag-good .tag { color: var(--green-600); }
+.advice-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+.advice-card p { margin-bottom: 0; font-size: 0.95rem; }
+
+.feedback-row {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #ECEFF7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.feedback-label {
+  font-size: 0.82rem;
+  color: var(--ink-300);
+  margin-right: 4px;
+}
+.feedback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  background: var(--white);
+  border: 1.5px solid #DDE1EE;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--ink-600);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.feedback-btn:hover { border-color: var(--navy-600); }
+.feedback-btn.active-up {
+  background: var(--green-100);
+  border-color: var(--green-600);
+  color: #2A6B43;
+}
+.feedback-btn.active-down {
+  background: var(--red-100);
+  border-color: var(--red-600);
+  color: #8C3528;
+}
+.feedback-thanks {
+  font-size: 0.8rem;
+  color: var(--green-600);
+  font-weight: 600;
+  display: none;
+}
+.feedback-thanks.show { display: inline; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-300);
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  background: var(--navy-900);
+  color: var(--navy-100);
+  padding: 48px 0 28px;
+  font-size: 0.85rem;
+}
+.site-footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.site-footer .brand { margin-bottom: 0; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { color: var(--navy-100); opacity: 0.75; }
+.footer-links a:hover { opacity: 1; }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 28px;
+  padding-top: 18px;
+  text-align: center;
+  opacity: 0.6;
+  font-size: 0.78rem;
+}
+
+/* ---------- Utility ---------- */
+.text-center { text-align: center; }
+.mt-0 { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">AA</span>
+      Academic Advisor
+    </a>
+    <div class="nav-links-group">
+      <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How it works</a>
+      </div>
+      <div class="nav-cta">
+        <a href="signin.html" class="btn btn-outline">Sign in</a>
+        <a href="signup.html" class="btn btn-primary">Get started</a>
+      </div>
+    </div>
+    <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div>
+      <span class="eyebrow">For University Undergraduates</span>
+      <h1>Academic advice that doesn't keep you <span class="accent">waiting in line.</span></h1>
+      <p class="lead">Get instant, rule-based guidance on carry-over courses, credit load and GPA standing — without booking an appointment with your advisor.</p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn btn-primary">Create your account</a>
+        <a href="signin.html" class="btn btn-outline">I already have one</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>24/7</strong><span>Always available</span></div>
+        <div><strong>3</strong><span>Core advisory checks</span></div>
+        <div><strong>0.0–5.0</strong><span>GPA scale supported</span></div>
+      </div>
+    </div>
+
+    <div class="gauge-card">
+      <div class="gauge-wrap">
+        <span class="gauge-label">Sample Standing</span>
+        <svg id="heroGauge" width="220" height="130" viewBox="0 0 220 130">
+          <path class="gauge-track" d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="14" stroke-linecap="round"/>
+          <path class="gauge-fill" d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="#E8A23D" stroke-width="14" stroke-linecap="round"/>
+        </svg>
+        <div class="gauge-value">3.42</div>
+        <div class="gauge-sub">Good standing</div>
+      </div>
+      <div class="gauge-rules">
+        <div class="gauge-rule"><span class="dot" style="background:#C0473A"></span>GPA below 1.5 → flagged for improvement</div>
+        <div class="gauge-rule"><span class="dot" style="background:#E8A23D"></span>Course load above 18 units → drop advised</div>
+        <div class="gauge-rule"><span class="dot" style="background:#3F8F5F"></span>No failed courses → cleared to register</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">What it checks</span>
+      <h2>Three things hold students back most. We check all three.</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon icon-navy">🎓</div>
+        <h3>Carry-over management</h3>
+        <p>List your carry-over courses and get a clear plan for registering them before they clash with new-semester units.</p>
+        <span class="rule-tag">Rule 04 · Carry-over courses</span>
+      </div>
+      <div class="card">
+        <div class="icon icon-gold">📊</div>
+        <h3>Credit load check</h3>
+        <p>Enter your course credit and load for the semester — we flag anything above the recommended 18-unit ceiling.</p>
+        <span class="rule-tag">Rule 02 · Course load &gt; 18</span>
+      </div>
+      <div class="card">
+        <div class="icon icon-green">📈</div>
+        <h3>GPA &amp; failed courses</h3>
+        <p>We check your GPA against the 1.5 threshold and flag any failed courses so you know exactly what to retake.</p>
+        <span class="rule-tag">Rule 01 &amp; 03 · GPA &amp; retakes</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-navy" id="how">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2>From sign-up to advice in under a minute</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="num">01</span>
+        <h4>Create your account</h4>
+        <p>Sign up with your name, email and matric number — takes under a minute.</p>
+      </div>
+      <div class="step">
+        <span class="num">02</span>
+        <h4>Enter your academic data</h4>
+        <p>GPA, course credit, course load, carry-overs and failed courses.</p>
+      </div>
+      <div class="step">
+        <span class="num">03</span>
+        <h4>Get instant advice</h4>
+        <p>The advisory engine checks your data against the three core rules.</p>
+      </div>
+      <div class="step">
+        <span class="num">04</span>
+        <h4>Track your history</h4>
+        <p>Revisit past results from your dashboard each semester.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container text-center">
+    <span class="eyebrow">Ready when you are</span>
+    <h2>Stop waiting for office hours.</h2>
+    <p style="max-width:480px; margin:0 auto 28px;">Get a first read on your academic standing right now — free, instant, and available whenever you need it.</p>
+    <a href="signup.html" class="btn btn-primary">Create your account</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">AA</span>
+      Academic Advisor
+    </a>
+    <div class="footer-links">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#how">How it works</a>
+      <a href="signin.html">Sign in</a>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    Final year project · Department of Computer Science
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   app.js — shared helpers used across all pages
+   Now wired to the real Express/MongoDB backend (see /backend)
+   instead of demo localStorage. Auth uses a JWT stored in
+   sessionStorage; student display info is cached alongside it.
+   ========================================================= */
+
+// Change this when deploying — point at your live Render URL,
+// e.g. "https://academic-advising-system.onrender.com/api"
+const API_BASE = "http://localhost:5000/api";
+
+const STORAGE_SESSION_KEY = "studentData"; // matches Appendix A naming
+const STORAGE_TOKEN_KEY = "aas_token";
+
+/* ---------- Shared DOM helper used by advisor.js, results.js, dashboard.js ---------- */
+function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  Object.entries(attrs).forEach(([k, v]) => {
+    if (k === "class") node.className = v;
+    else if (k === "text") node.textContent = v;
+    else node.setAttribute(k, v);
+  });
+  children.forEach((c) => node.appendChild(c));
+  return node;
+}
+
+/* Merge carry-over + failed courses into one pool — a failed course IS a
+   carry-over course. Dedupe by code, keeping the larger unit value if a
+   code appears in both lists. Used by advisor.js (planning) and results.js
+   (accurate flagged-course count). */
+function mergeCourseLists(a, b) {
+  const map = new Map();
+  [...a, ...b].forEach((c) => {
+    if (!c.courseCode) return;
+    const existing = map.get(c.courseCode);
+    if (!existing || c.units > existing.units) map.set(c.courseCode, c);
+  });
+  return [...map.values()];
+}
+
+function getSession() {
+  try {
+    return JSON.parse(sessionStorage.getItem(STORAGE_SESSION_KEY));
+  } catch (e) {
+    return null;
+  }
+}
+
+function setSession(student) {
+  sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(student));
+}
+
+function clearSession() {
+  sessionStorage.removeItem(STORAGE_SESSION_KEY);
+  sessionStorage.removeItem(STORAGE_TOKEN_KEY);
+}
+
+function getToken() {
+  return sessionStorage.getItem(STORAGE_TOKEN_KEY);
+}
+
+function setToken(token) {
+  sessionStorage.setItem(STORAGE_TOKEN_KEY, token);
+}
+
+function requireAuth() {
+  const student = getSession();
+  if (!student || !getToken()) {
+    window.location.href = "signin.html";
+  }
+  return student;
+}
+
+/* ---------- API helper ----------
+   Wraps fetch with the API base URL, JSON handling, and the
+   Authorization header when a token is present. Throws an Error
+   with the backend's message on non-2xx responses so callers can
+   just try/catch and show err.message to the user. */
+async function apiFetch(path, { method = "GET", body, auth = true } = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (auth) {
+    const token = getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (networkErr) {
+    throw new Error("Couldn't reach the server. Make sure the backend is running.");
+  }
+
+  let data = {};
+  try {
+    data = await response.json();
+  } catch (parseErr) {
+    // non-JSON response, fall through with empty data
+  }
+
+  if (!response.ok) {
+    throw new Error(data.message || `Request failed (${response.status}).`);
+  }
+  return data;
+}
+
+/* ---------- Mobile nav toggle ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.querySelector(".nav-toggle");
+  const linksGroup = document.querySelector(".nav-links-group");
+  if (toggle && linksGroup) {
+    toggle.addEventListener("click", () => {
+      linksGroup.classList.toggle("open");
+    });
+  }
+
+  // Highlight active nav link + show student name if signed in
+  const here = window.location.pathname.split("/").pop() || "index.html";
+  document.querySelectorAll(".nav-links a").forEach((a) => {
+    if (a.getAttribute("href") === here) a.classList.add("active");
+  });
+
+  const nameSlot = document.querySelector("[data-student-name]");
+  const session = getSession();
+  if (nameSlot && session) {
+    nameSlot.textContent = session.firstName || session.email;
+  }
+
+  const logoutBtn = document.querySelector("[data-logout]");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      clearSession();
+      window.location.href = "index.html";
+    });
+  }
+});
+
+/* ---------- Animated GPA gauge (hero signature element) ---------- */
+function drawGauge(svgEl, value, max = 5.0) {
+  if (!svgEl) return;
+  const radius = 80;
+  const circumference = Math.PI * radius; // half circle
+  const pct = Math.max(0, Math.min(1, value / max));
+  const track = svgEl.querySelector(".gauge-track");
+  const fill = svgEl.querySelector(".gauge-fill");
+  if (track) {
+    track.setAttribute("stroke-dasharray", `${circumference} ${circumference}`);
+  }
+  if (fill) {
+    fill.setAttribute("stroke-dasharray", `${circumference} ${circumference}`);
+    fill.setAttribute("stroke-dashoffset", `${circumference}`);
+    requestAnimationFrame(() => {
+      fill.style.transition = "stroke-dashoffset 1.4s cubic-bezier(.16,1,.3,1)";
+      fill.setAttribute("stroke-dashoffset", `${circumference - circumference * pct}`);
+    });
+  }
+}
+
+</script>
+<script>
+  drawGauge(document.getElementById("heroGauge"), 3.42, 5.0);
+</script>
+</body>
+</html>
