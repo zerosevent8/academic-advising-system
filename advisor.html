@@ -913,9 +913,16 @@ a { color: var(--navy-700); text-decoration: none; }
    sessionStorage; student display info is cached alongside it.
    ========================================================= */
 
-// Change this when deploying — point at your live Render URL,
-// e.g. "https://academic-advising-system.onrender.com/api"
-const API_BASE = "http://localhost:5000/api";
+// Auto-detect: use localhost when running locally, live Render URL
+// when the frontend is served from GitHub Pages or any other origin.
+// Replace the string below with your actual Render URL once deployed.
+const RENDER_URL = "https://academic-advising-system.onrender.com/api";
+const LOCAL_URL = "http://localhost:5000/api";
+
+const API_BASE = (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+) ? LOCAL_URL : RENDER_URL;
 
 const STORAGE_SESSION_KEY = "studentData"; // matches Appendix A naming
 const STORAGE_TOKEN_KEY = "aas_token";
@@ -993,12 +1000,22 @@ async function apiFetch(path, { method = "GET", body, auth = true } = {}) {
 
   let response;
   try {
+    // 70-second timeout to handle Render free-tier cold starts
+    // (Render warns these can take 50+ seconds after inactivity)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 70000);
+
     response = await fetch(`${API_BASE}${path}`, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
   } catch (networkErr) {
+    if (networkErr.name === "AbortError") {
+      throw new Error("The server is taking too long to respond — it may be waking up from sleep. Please wait 30 seconds and try again.");
+    }
     throw new Error("Couldn't reach the server. Make sure the backend is running.");
   }
 
