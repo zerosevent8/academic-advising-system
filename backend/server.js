@@ -1,3 +1,4 @@
+// server.js
 // Entry point for the Academic Advising System API.
 // Architecture matches Chapter 4.2 of the project document:
 // Presentation (React) -> Application (Express/Node) -> Data (MongoDB)
@@ -13,9 +14,10 @@ const feedbackRoutes = require("./routes/feedback");
 
 const app = express();
 
-// Allow any localhost/127.0.0.1 port automatically, plus any github.io
-// origin, since the frontend is hosted on GitHub Pages. CLIENT_ORIGIN in
-// .env is still respected for a fixed production origin as a fallback.
+// Allow any localhost/127.0.0.1 port automatically — handy since the
+// frontend's dev server port changes (8080, 8081, etc. depending on what's
+// free). CLIENT_ORIGIN in .env is still respected for a fixed production
+// origin once this is deployed (e.g. your GitHub Pages URL).
 app.use(
   cors({
     origin(origin, callback) {

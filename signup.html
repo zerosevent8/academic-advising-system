@@ -793,7 +793,7 @@ a { color: var(--navy-700); text-decoration: none; }
 
       <div class="alert alert-error" id="authAlert"></div>
 
-      <form id="signupForm" novalidate>
+      <form id="signupForm" novalidate onsubmit="return false;">
         <div class="row-2">
           <div class="field">
             <label for="firstName">First name</label>
@@ -843,6 +843,13 @@ const API_BASE = (
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
 ) ? LOCAL_URL : RENDER_URL;
+
+// Temporary diagnostic: surface any uncaught JS error as a visible alert
+// instead of it failing silently (which looks like "the page just reset").
+// Safe to remove once everything is confirmed working end to end.
+window.addEventListener("error", (e) => {
+  alert("Script error: " + e.message + "\n(" + (e.filename || "unknown file") + ":" + e.lineno + ")");
+});
 
 const STORAGE_SESSION_KEY = "studentData"; // matches Appendix A naming
 const STORAGE_TOKEN_KEY = "aas_token";
@@ -1014,9 +1021,9 @@ function drawGauge(svgEl, value, max = 5.0) {
    subsequent authenticated requests.
    ========================================================= */
 
-function showAlert(box, message) {
+function showAlert(box, message, type) {
   box.textContent = message;
-  box.classList.add("show");
+  box.className = "alert " + (type === "info" ? "alert-success" : "alert-error") + " show";
 }
 
 function setFormBusy(form, busy) {
@@ -1037,7 +1044,7 @@ document.addEventListener("DOMContentLoaded", () => {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const alertBox = document.getElementById("authAlert");
-      alertBox.classList.remove("show");
+      alertBox.className = "alert alert-error";
 
       const firstName = document.getElementById("firstName").value.trim();
       const lastName = document.getElementById("lastName").value.trim();
@@ -1055,24 +1062,26 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       setFormBusy(signupForm, true);
-      const alertBox = document.getElementById("authAlert");
-      alertBox.classList.remove("show");
-      // Show a gentle heads-up in case Render is cold-starting
-      setTimeout(() => {
+
+      // Show waking-up message after 4s if still waiting
+      const wakeTimer = setTimeout(() => {
         if (signupForm.querySelector("button[type=submit]").disabled) {
-          alertBox.className = "alert alert-success show";
-          alertBox.textContent = "Waking up the server — this can take up to 60 seconds on first use. Please wait…";
+          showAlert(alertBox, "Waking up the server — this can take up to 60 seconds on first use. Please wait\u2026", "info");
         }
       }, 4000);
+
+      try {
         const data = await apiFetch("/auth/signup", {
           method: "POST",
           auth: false,
           body: { firstName, lastName, email, matric, password },
         });
+        clearTimeout(wakeTimer);
         setToken(data.token);
         setSession({ id: data.student.id, firstName: data.student.firstName, email: data.student.email });
         window.location.href = "advisor.html";
       } catch (err) {
+        clearTimeout(wakeTimer);
         showAlert(alertBox, err.message);
         setFormBusy(signupForm, false);
       }
@@ -1084,29 +1093,31 @@ document.addEventListener("DOMContentLoaded", () => {
     signinForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const alertBox = document.getElementById("authAlert");
-      alertBox.classList.remove("show");
+      alertBox.className = "alert alert-error";
 
       const email = document.getElementById("email").value.trim().toLowerCase();
       const password = document.getElementById("password").value;
 
       setFormBusy(signinForm, true);
-      const alertBox = document.getElementById("authAlert");
-      alertBox.classList.remove("show");
-      setTimeout(() => {
+
+      const wakeTimer = setTimeout(() => {
         if (signinForm.querySelector("button[type=submit]").disabled) {
-          alertBox.className = "alert alert-success show";
-          alertBox.textContent = "Waking up the server — this can take up to 60 seconds on first use. Please wait…";
+          showAlert(alertBox, "Waking up the server — this can take up to 60 seconds on first use. Please wait\u2026", "info");
         }
       }, 4000);
+
+      try {
         const data = await apiFetch("/auth/signin", {
           method: "POST",
           auth: false,
           body: { email, password },
         });
+        clearTimeout(wakeTimer);
         setToken(data.token);
         setSession({ id: data.student.id, firstName: data.student.firstName, email: data.student.email });
         window.location.href = "advisor.html";
       } catch (err) {
+        clearTimeout(wakeTimer);
         showAlert(alertBox, err.message);
         setFormBusy(signinForm, false);
       }

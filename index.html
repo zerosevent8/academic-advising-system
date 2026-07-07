@@ -923,6 +923,13 @@ const API_BASE = (
   window.location.hostname === "127.0.0.1"
 ) ? LOCAL_URL : RENDER_URL;
 
+// Temporary diagnostic: surface any uncaught JS error as a visible alert
+// instead of it failing silently (which looks like "the page just reset").
+// Safe to remove once everything is confirmed working end to end.
+window.addEventListener("error", (e) => {
+  alert("Script error: " + e.message + "\n(" + (e.filename || "unknown file") + ":" + e.lineno + ")");
+});
+
 const STORAGE_SESSION_KEY = "studentData"; // matches Appendix A naming
 const STORAGE_TOKEN_KEY = "aas_token";
 
